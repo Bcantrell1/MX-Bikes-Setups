@@ -1,7 +1,8 @@
 import '../styles/globals.css'
-import type { AppProps } from 'next/app'
+import { CustomAppProps } from '../types/app'
 
 import { SessionProvider } from "next-auth/react"
+import { useSession } from "next-auth/react"
 
 import { withTRPC } from '@trpc/next'
 import { loggerLink } from '@trpc/client/links/loggerLink'
@@ -12,15 +13,33 @@ import superjson from 'superjson';
 
 import { url } from '../constants';
 
-import Header from '../components/Header';
+import Header from '../components/header';
 
-function MyApp({Component, pageProps: { session, ...pageProps }}: AppProps): JSX.Element {
+function MyApp({Component, pageProps: { session, ...pageProps }}: CustomAppProps): JSX.Element {
   return (
   <SessionProvider session={session}>
     <Header />
-    <Component {...pageProps} />
+    {Component.auth ? (
+        <Auth>
+          <Component {...pageProps} />
+        </Auth>
+      ) : (
+        <Component {...pageProps} />
+      )}
   </SessionProvider>
   )
+}
+
+
+
+function Auth({ children }: { children: JSX.Element }) {
+  const { status } = useSession({ required: true })
+
+  if (status === "loading") {
+    return <div>Loading...</div>
+  }
+
+  return children
 }
 
 export default withTRPC<AppRouter>({

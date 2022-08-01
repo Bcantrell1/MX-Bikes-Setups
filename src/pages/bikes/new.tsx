@@ -2,10 +2,12 @@ import { useRouter } from "next/router";
 import { useForm } from 'react-hook-form';
 import { CreateBikeInput } from "../../schema/bike.schema";
 import { trpc } from "../../utils/trpc";
+import {getSession} from 'next-auth/react';
 
-function CreateBikePage() {
+export default function CreateBikePage() {
     const {handleSubmit, register} = useForm<CreateBikeInput>();
     const router = useRouter();
+    const session = getSession();
 
     const {mutate, error} = trpc.useMutation(['bikes.create-bike'], {
         onSuccess: ({category}) => router.push(`/bikes/${category}`),
@@ -14,6 +16,8 @@ function CreateBikePage() {
     function onSubmit(values: CreateBikeInput) {
         mutate(values);
       }
+
+      if(!session) return <div>Please Sign to access this route</div>;
 
       return (
         <div className="h-screen flex justify-center items-center">
@@ -29,4 +33,4 @@ function CreateBikePage() {
       )
 }
 
-export default CreateBikePage;
+CreateBikePage.auth = true;

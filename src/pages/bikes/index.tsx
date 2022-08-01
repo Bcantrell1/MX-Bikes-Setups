@@ -1,7 +1,7 @@
 import { trpc } from '../../utils/trpc';
 import Link from 'next/link';
 
-function BikesListingPage() {
+export default function BikesListingPage() {
     const {data, isLoading, error} = trpc.useQuery(['bikes.categories']);
     const categories = [...new Set(data?.map(bikes => bikes.category))];
 
@@ -21,4 +21,4 @@ function BikesListingPage() {
     )
 }
 
-export default BikesListingPage;
+BikesListingPage.auth = true;

@@ -1,15 +1,12 @@
 import { createRouter } from "../createRouter";
 import * as trpc from '@trpc/server'
 import { createBikeSchema, getSingleBikeSchema, getCategoryBikeSchema } from "../../schema/bike.schema";
-import { getSession } from 'next-auth/react';
-
-const session = getSession();
 
 export const bikesRouter = createRouter()
 .mutation('create-bike', {
     input: createBikeSchema,
     async resolve({ctx, input}) {
-        if(!session) {
+        if(!(await ctx).session) {
             new trpc.TRPCError({
                 code: 'FORBIDDEN',
                 message: 'You are not allowed to create bikes'
@@ -26,6 +23,13 @@ export const bikesRouter = createRouter()
 })
 .query('categories', {
     async resolve({ctx}) {
+        if(!(await ctx).session) {
+            new trpc.TRPCError({
+                code: 'FORBIDDEN',
+                message: 'You are not allowed to access categories'
+            });
+        }
+        
         return (await ctx).prisma.bike.findMany({
             orderBy: {
                 category: 'asc'
@@ -34,11 +38,18 @@ export const bikesRouter = createRouter()
     }
 })
 .query('single-bike', {
-    input: getCategoryBikeSchema,
+    input: getSingleBikeSchema,
     async resolve({ctx, input}) {
-        return (await ctx).prisma.bike.findUnique({
+        if(!(await ctx).session) {
+            new trpc.TRPCError({
+                code: 'FORBIDDEN',
+                message: 'You are not allowed to create bikes'
+            });
+        }
+
+        return (await ctx).prisma.bike.findFirst({
             where: {
-                id: input.category
+                name: input.name
             }
         });
     }
@@ -46,6 +57,13 @@ export const bikesRouter = createRouter()
 .query('category-bikes', {
     input: getCategoryBikeSchema,
     async resolve({ctx, input}) {
+        if(!(await ctx).session) {
+            new trpc.TRPCError({
+                code: 'FORBIDDEN',
+                message: 'You are not allowed to create bikes'
+            });
+        }
+
         return (await ctx).prisma.bike.findMany({
             where: {
                 category: input.category
