@@ -1,45 +1,45 @@
-import '../styles/globals.css'
-import { CustomAppProps } from '../types/app'
+import "../styles/globals.css";
+import { CustomAppProps } from "../types/app";
 
-import { SessionProvider } from "next-auth/react"
-import { useSession } from "next-auth/react"
+import { SessionProvider, useSession } from "next-auth/react";
 
-import { withTRPC } from '@trpc/next'
-import { loggerLink } from '@trpc/client/links/loggerLink'
-import { httpBatchLink } from '@trpc/client/links/httpBatchLink'
-import { AppRouter } from '../server/route/app.router';
+import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
+import { loggerLink } from "@trpc/client/links/loggerLink";
+import { withTRPC } from "@trpc/next";
+import { AppRouter } from "../server/route/app.router";
 
-import superjson from 'superjson';
+import superjson from "superjson";
 
-import { url } from '../constants';
+import { url } from "../constants";
 
-import Header from '../components/header';
+import Header from "../components/header";
 
-function MyApp({Component, pageProps: { session, ...pageProps }}: CustomAppProps): JSX.Element {
+function MyApp({
+  Component,
+  pageProps: { session, ...pageProps },
+}: CustomAppProps): JSX.Element {
   return (
-  <SessionProvider session={session}>
-    <Header />
-    {Component.auth ? (
+    <SessionProvider session={session}>
+      <Header />
+      {Component.auth ? (
         <Auth>
           <Component {...pageProps} />
         </Auth>
       ) : (
         <Component {...pageProps} />
       )}
-  </SessionProvider>
-  )
+    </SessionProvider>
+  );
 }
 
-
-
 function Auth({ children }: { children: JSX.Element }) {
-  const { status } = useSession({ required: true })
+  const { status } = useSession({ required: true });
 
   if (status === "loading") {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
-  return children
+  return children;
 }
 
 export default withTRPC<AppRouter>({
@@ -50,7 +50,7 @@ export default withTRPC<AppRouter>({
         maxBatchSize: 10,
         url,
       }),
-    ]
+    ];
 
     return {
       queryClientConfig: {
@@ -64,14 +64,14 @@ export default withTRPC<AppRouter>({
         if (ctx?.req) {
           return {
             ...ctx.req.headers,
-            'x-ssr': '1',
-          }
+            "x-ssr": "1",
+          };
         }
-        return {}
+        return {};
       },
       links,
       transformer: superjson,
-    }
+    };
   },
   ssr: false,
-})(MyApp)
+})(MyApp);

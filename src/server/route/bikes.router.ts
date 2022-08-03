@@ -1,6 +1,6 @@
+import * as trpc from '@trpc/server';
+import { createBikeSchema, getCategoryBikeSchema, getSingleBikeSchema } from "../../schema/bike.schema";
 import { createRouter } from "../createRouter";
-import * as trpc from '@trpc/server'
-import { createBikeSchema, getSingleBikeSchema, getCategoryBikeSchema } from "../../schema/bike.schema";
 
 export const bikesRouter = createRouter()
 .mutation('create-bike', {
